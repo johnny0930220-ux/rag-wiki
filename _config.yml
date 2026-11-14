@@ -1,0 +1,3 @@
+# 網頁都由 tools/build_site.py 產生，不使用 Jekyll（另有 .nojekyll）。
+# 這裡是保險：就算 .nojekyll 沒上傳，Jekyll 也不會把 .md 轉成同名的 .html 蓋掉。
+exclude: [tools, runs, AGENTS.md, discussion.md, "raw/*.md", "wiki/*.md", "wiki/concepts/*.md", "wiki/sources/*.md", "slides/outline.md"]
