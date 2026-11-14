@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG：讓 AI 先查資料再回答</title>
+<meta name="description" content="給一般人的 RAG 入門教學簡報，內容全部來自 RAG Wiki。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f3ec; --paper: #fffdf8; --ink: #1f2328; --muted: #5d636b; --line: #e3ddd0;
+  --accent: #0f6e6a; --accent-soft: #dcefeb; --warm: #c2410c; --warm-soft: #fbe7da;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #2a2d31; color: var(--ink); font-family: var(--font); }
+.stage { position: fixed; inset: 0 0 56px 0; display: grid; place-items: center; overflow: hidden; }
+.deck { width: 1280px; height: 720px; position: relative; transform-origin: center center; }
+section.slide { position: absolute; inset: 0; background: var(--paper); border-radius: 6px; display: none; overflow: hidden; }
+section.slide.active { display: block; }
+.inner { position: absolute; inset: 0 0 52px 0; padding: 56px 80px 0; overflow: hidden; display: flex; flex-direction: column; }
+.foot { position: absolute; left: 80px; right: 80px; bottom: 18px; display: flex; justify-content: space-between; font-size: 15px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+.kicker { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: .06em; margin: 0 0 10px; }
+h1 { font-size: 72px; line-height: 1.2; margin: 0 0 20px; font-weight: 900; }
+h2 { font-size: 46px; line-height: 1.25; margin: 0 0 28px; font-weight: 900; }
+p, li { font-size: 27px; line-height: 1.6; }
+p { margin: 0 0 18px; }
+ul { margin: 0; padding-left: 1.2em; }
+li { margin: 0 0 12px; }
+strong { color: var(--accent); }
+.big { font-size: 34px; line-height: 1.5; }
+.muted { color: var(--muted); }
+.term { display: inline-block; background: var(--accent-soft); color: var(--accent); border-radius: 8px; padding: 2px 12px; font-weight: 700; }
+.note { margin-top: auto; margin-bottom: 18px; background: var(--warm-soft); border-left: 6px solid var(--warm); border-radius: 0 10px 10px 0; padding: 14px 22px; font-size: 24px; line-height: 1.5; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.card { background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.card h3 { font-size: 28px; margin: 0 0 10px; }
+.card p { font-size: 23px; margin: 0; line-height: 1.55; }
+.card.on { border-color: var(--accent); background: var(--accent-soft); }
+.card.bad { border-color: var(--warm); background: var(--warm-soft); }
+.num { font-size: 22px; font-weight: 900; color: #fff; background: var(--accent); width: 40px; height: 40px; border-radius: 50%; display: inline-grid; place-items: center; margin-bottom: 10px; }
+.flow { display: flex; align-items: stretch; gap: 14px; }
+.flow .card { flex: 1; }
+.arrow { align-self: center; font-size: 36px; color: var(--accent); font-weight: 900; }
+.chat { display: flex; flex-direction: column; gap: 14px; }
+.bubble { max-width: 80%; padding: 14px 20px; border-radius: 18px; font-size: 25px; line-height: 1.5; }
+.bubble.q { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.bubble.a { align-self: flex-start; background: #fff; border: 2px solid var(--line); border-bottom-left-radius: 4px; }
+.bubble.a.bad { border-color: var(--warm); }
+code, .code { font-family: "JetBrains Mono", Consolas, monospace; }
+.code { display: block; background: #23272c; color: #e8e6e1; border-radius: 12px; padding: 18px 22px; font-size: 22px; line-height: 1.6; }
+.code .hl { color: #7dd3c7; }
+.chunks { display: flex; gap: 10px; margin: 6px 0 20px; }
+.chunk { flex: 1; height: 76px; border-radius: 10px; background: var(--accent-soft); border: 2px dashed var(--accent); display: grid; place-items: center; font-size: 20px; color: var(--accent); font-weight: 700; }
+.vec { font-family: Consolas, monospace; font-size: 22px; color: var(--accent); }
+.quiz li { margin-bottom: 18px; }
+.quiz .opt { color: var(--muted); font-size: 23px; }
+.title-slide .inner { justify-content: center; }
+.title-slide h1 { font-size: 84px; }
+.ctrl { position: fixed; bottom: 14px; right: 18px; display: flex; gap: 8px; align-items: center; color: #d6d3cc; font: 15px var(--font); z-index: 5; }
+.ctrl button { font: inherit; background: #3a3e44; color: #f2efe8; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+.ctrl button:hover { background: #4b5058; }
+.progress { position: fixed; left: 0; top: 0; height: 4px; background: var(--accent); transition: width .2s; z-index: 5; }
+
+/* 窄螢幕：改成由上往下捲動的卡片，不縮放 */
+@media (max-width: 760px) {
+  html, body { height: auto; background: var(--bg); }
+  .stage { position: static; display: block; padding: 12px 16px 40px; }
+  .deck { width: auto; height: auto; transform: none !important; }
+  section.slide { position: relative; display: block; margin: 0 0 16px; border: 1px solid var(--line); border-radius: 14px; }
+  .inner { position: static; padding: 22px 18px 8px; }
+  .foot { position: static; padding: 10px 18px 14px; margin: 0; font-size: 12px; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); }
+  h1, .title-slide h1 { font-size: 34px; } h2 { font-size: 26px; margin-bottom: 14px; }
+  p, li, .big { font-size: 17px; } .kicker { font-size: 14px; }
+  .grid2, .grid3 { grid-template-columns: 1fr; gap: 12px; }
+  .flow { flex-direction: column; } .arrow { transform: rotate(90deg); font-size: 26px; }
+  .card { padding: 14px 16px; } .card h3 { font-size: 19px; } .card p { font-size: 16px; }
+  .bubble { font-size: 16px; max-width: 92%; } .note { font-size: 16px; margin-top: 14px; }
+  .code { font-size: 14px; padding: 12px; overflow-x: auto; } .chunk { font-size: 13px; height: 50px; }
+  .vec { font-size: 14px; word-break: break-all; } .quiz .opt { font-size: 15px; }
+  .ctrl, .progress { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="stage"><div class="deck" id="deck">
+
+<section class="slide title-slide" data-wiki="rag">
+  <div class="inner">
+    <p class="kicker">給用過 ChatGPT 的你 · RAG 入門</p>
+    <h1>RAG：讓 AI 先查資料再回答</h1>
+    <p class="big"><span class="term">RAG</span> 是 Retrieval-Augmented Generation 的縮寫，中文叫「檢索增強生成」。</p>
+    <p class="big muted">一句話：讓 AI 回答之前，先去翻訓練資料以外的可靠資料。</p>
+  </div>
+  <div class="foot"><span>Wiki：RAG（檢索增強生成）</span><span>1 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="llm">
+  <div class="inner">
+    <p class="kicker">先認識主角</p>
+    <h2>ChatGPT 背後的大型語言模型</h2>
+    <p><span class="term">LLM</span>（大型語言模型）就是 ChatGPT 背後的模型，用大量文字訓練出來。</p>
+    <div class="grid3">
+      <div class="card"><h3>知識存在哪？</h3><p>學到的知識存在模型的「參數」裡，像是背在腦袋裡。</p></div>
+      <div class="card"><h3>知識到哪天？</h3><p>訓練資料是固定的，有截止日期，之後發生的事它不知道。</p></div>
+      <div class="card"><h3>真的懂嗎？</h3><p>它知道詞和詞之間的統計關係，但不一定懂真正的意思。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Wiki：大型語言模型（LLM）</span><span>2 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="llm-limitations">
+  <div class="inner">
+    <p class="kicker">為什麼需要 RAG</p>
+    <h2>LLM 常見的四個問題</h2>
+    <div class="grid2">
+      <div class="card bad"><h3>不知道也照答</h3><p>不知道答案時，仍然給出錯誤資訊。</p></div>
+      <div class="card bad"><h3>資訊過時</h3><p>你要最新、具體的答案，它給你舊的或籠統的。</p></div>
+      <div class="card bad"><h3>來源不可靠</h3><p>從不具權威性的資料產生回答。</p></div>
+      <div class="card bad"><h3>同詞不同義</h3><p>不同資料用同一個詞指不同東西，就容易答錯。</p></div>
+    </div>
+    <p class="note">另外，知識存在參數裡，模型很難說出「我是從哪裡知道的」，也很難更新。</p>
+  </div>
+  <div class="foot"><span>Wiki：LLM 的限制</span><span>3 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="hallucination llm-limitations">
+  <div class="inner">
+    <p class="kicker">為什麼需要 RAG</p>
+    <h2>幻覺：聽起來對，其實是錯的</h2>
+    <p><span class="term">幻覺</span>：模型給出聽起來很合理、但其實不正確的答案。</p>
+    <div class="chat">
+      <div class="bubble q">我可以請多久的產假？</div>
+      <div class="bubble a bad">想請多久就請多久喔！</div>
+    </div>
+    <p class="note">產假規定依地區不同。比較好的回答是說「我不知道」，或追問你在哪裡工作。</p>
+  </div>
+  <div class="foot"><span>Wiki：幻覺 · LLM 的限制</span><span>4 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="rag analogies">
+  <div class="inner">
+    <p class="kicker">RAG 是什麼</p>
+    <h2>RAG 就像開書考</h2>
+    <div class="grid2">
+      <div class="card"><h3>閉書考：一般的 LLM</h3><p>只能靠背下來的東西作答，忘了或沒讀過就只能猜。</p></div>
+      <div class="card on"><h3><span class="term">開書考</span>：有 RAG 的 LLM</h3><p>可以先翻資料再作答，不只靠記憶。</p></div>
+    </div>
+    <p style="margin-top:26px">RAG 讓 LLM 回答前，先參考訓練資料以外的權威資料。要加新知識時，<strong>不用重新訓練模型</strong>，更新資料就好。</p>
+  </div>
+  <div class="foot"><span>Wiki：RAG · 理解 RAG 的比喻</span><span>5 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="analogies">
+  <div class="inner">
+    <p class="kicker">RAG 是什麼</p>
+    <h2>另外兩個比喻</h2>
+    <div class="grid2">
+      <div class="card on"><h3><span class="term">法院書記官</span></h3><p>法官靠一般法律知識判案；遇到特殊案件，請書記官去法律圖書館找判例。RAG 就是 AI 的書記官。</p></div>
+      <div class="card bad"><h3>過度熱心的<span class="term">新員工</span></h3><p>沒有 RAG 的 LLM 像一個不看最新消息、卻對每個問題都很有自信地回答的新員工。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Wiki：理解 RAG 的比喻</span><span>6 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="rag-workflow">
+  <div class="inner">
+    <p class="kicker">RAG 怎麼運作</p>
+    <h2>RAG 的四個步驟</h2>
+    <div class="flow">
+      <div class="card"><span class="num">1</span><h3>準備資料</h3><p>把文件整理好，存成電腦方便查的形式。</p></div>
+      <div class="arrow">→</div>
+      <div class="card"><span class="num">2</span><h3>找出相關資料</h3><p>依照你的問題，找出最有關的幾段。</p></div>
+      <div class="arrow">→</div>
+      <div class="card"><span class="num">3</span><h3>交給 AI 回答</h3><p>把資料和問題一起交給 LLM。</p></div>
+      <div class="arrow">→</div>
+      <div class="card"><span class="num">4</span><h3>定期更新</h3><p>文件變了，資料也要跟著更新。</p></div>
+    </div>
+    <p class="note">接下來四頁一步一步講，每一步再介紹它的正式名稱。</p>
+  </div>
+  <div class="foot"><span>Wiki：RAG 的運作流程</span><span>7 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="chunking">
+  <div class="inner">
+    <p class="kicker">步驟一 · 準備資料</p>
+    <h2>步驟一之前：把資料切成小塊</h2>
+    <p>長文件要先<span class="term">切塊</span>：切成一段一段的文字塊，例如每塊 500 字、前後重疊 50 字。</p>
+    <div class="chunks"><div class="chunk">文字塊 1</div><div class="chunk">文字塊 2</div><div class="chunk">文字塊 3</div><div class="chunk">文字塊 4</div><div class="chunk">…</div></div>
+    <p>但切開後可能看不懂。財報裡的一塊只寫「公司營收比上一季成長 3%」，看不出是哪家公司、2023 年哪一季。</p>
+    <p class="note">切多大、要不要重疊，會影響之後找不找得到資料。</p>
+  </div>
+  <div class="foot"><span>Wiki：切塊（chunking）</span><span>8 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="embedding vector-database">
+  <div class="inner">
+    <p class="kicker">步驟一 · 準備資料</p>
+    <h2>把文字變成一串數字</h2>
+    <p><span class="term">embedding</span>：把一段文字轉成一串數字（向量），代表它的意思。<strong>意思相近，數字就靠近。</strong></p>
+    <div class="grid2">
+      <div class="card on"><h3>問題：圖書館星期日幾點關門？</h3><p>應該靠近 → 「本館週日開放至下午五點」</p></div>
+      <div class="card"><h3>不相關的段落</h3><p>應該遠離 → 「本館借書期限為三十天」</p></div>
+    </div>
+    <p style="margin-top:22px">所有文字塊的向量，都存進<span class="term">向量資料庫</span>，之後才能快速比對。</p>
+  </div>
+  <div class="foot"><span>Wiki：Embedding · 向量資料庫</span><span>9 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="retrieval reranking">
+  <div class="inner">
+    <p class="kicker">步驟二 · 找出相關資料</p>
+    <h2>找出最相關的資料</h2>
+    <p>這一步叫<span class="term">檢索</span>：</p>
+    <ul>
+      <li>你的問題也會被轉成向量。</li>
+      <li>電腦找出和問題向量最接近的幾塊文字。</li>
+      <li>它比對的是<strong>意思</strong>，不只是字面上一樣的字。</li>
+      <li>找到的通常不只一塊，有時還要<span class="term">重新排序</span>（把最相關的排前面），或把前後文一起拿進來。</li>
+    </ul>
+    <p class="note">開放領域的 RAG 可以搜尋網路文件；公司內部通常只搜尋範圍較小、較安全的資料。</p>
+  </div>
+  <div class="foot"><span>Wiki：檢索（retrieval）· Reranking</span><span>10 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="augmented-prompt citations-trust">
+  <div class="inner">
+    <p class="kicker">步驟三 · 交給 AI 回答</p>
+    <h2>把資料放進 prompt，再回答</h2>
+    <p><span class="term">擴增 prompt</span>：把找到的資料和你的問題放在一起，交給 LLM。課堂上的範例：</p>
+    <span class="code">請根據 <span class="hl">{retrieved_chunks}</span> 裡的資訊，<br>回應使用者的問題：<span class="hl">{question}</span></span>
+    <p style="margin-top:22px">因為知道資料從哪裡來，回答可以<span class="term">附上來源</span>，就像論文的註腳，你可以自己查證。</p>
+  </div>
+  <div class="foot"><span>Wiki：擴增 prompt · 附來源與信任</span><span>11 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="rag-workflow citations-trust">
+  <div class="inner">
+    <p class="kicker">串起來看</p>
+    <h2>實際例子：問年假的 HR 機器人</h2>
+    <div class="chat">
+      <div class="bubble q">我還有多少年假？</div>
+    </div>
+    <div class="flow" style="margin:18px 0">
+      <div class="card"><h3>找資料</h3><p>公司的年假政策文件，加上你過去的請假紀錄。</p></div>
+      <div class="arrow">→</div>
+      <div class="card"><h3>放進 prompt</h3><p>把這些資料和你的問題一起交給 LLM。</p></div>
+      <div class="arrow">→</div>
+      <div class="card on"><h3>回答＋來源</h3><p>LLM 根據這些資料回答，也可以附上資料來源讓你查證。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Wiki：RAG 的運作流程 · 附來源與信任</span><span>12 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="rag-limitations hallucination">
+  <div class="inner">
+    <p class="kicker">RAG 的限制</p>
+    <h2>RAG 也不是萬能</h2>
+    <div class="grid3">
+      <div class="card bad"><h3>仍可能幻覺</h3><p>RAG 只能降低幻覺，不能消除。</p></div>
+      <div class="card bad"><h3>不會說不知道</h3><p>RAG 不會讓模型自動承認答不出來，這需要另外訓練。</p></div>
+      <div class="card bad"><h3>可能找錯資料</h3><p>檢索這一步本身也會失敗，找不到對的段落，就答不好。</p></div>
+    </div>
+    <p class="note">所以看到 RAG 的回答，還是要點開來源確認。</p>
+  </div>
+  <div class="foot"><span>Wiki：RAG 的限制 · 幻覺</span><span>13 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="long-context llm-wiki">
+  <div class="inner">
+    <p class="kicker">替代做法</p>
+    <h2>資料不多時，可以直接全部放進去</h2>
+    <div class="grid2">
+      <div class="card"><h3>全部放進 prompt</h3><p>資料小於 20 萬個 token（大約 500 頁）時，可以不檢索，整份放進 prompt。<span class="term">CAG</span> 會先用 KV-Cache 把資料存起來再交給 LLM。</p></div>
+      <div class="card"><h3><span class="term">LLM Wiki</span></h3><p>讓 LLM 自己把資料整理成一頁一頁的筆記和索引。資料量不大時，這樣就夠用，不一定要複雜的 RAG。</p></div>
+    </div>
+    <p class="note">這份簡報本身，就是先把 6 篇資料整理成 LLM Wiki，再從 wiki 做出來的。</p>
+  </div>
+  <div class="foot"><span>Wiki：直接放進 prompt · LLM Wiki</span><span>14 / 15</span></div>
+</section>
+
+<section class="slide" data-wiki="rag rag-workflow rag-limitations">
+  <div class="inner">
+    <p class="kicker">複習</p>
+    <h2>小測驗與總結</h2>
+    <ol class="quiz">
+      <li>RAG 主要想解決 LLM 的什麼問題？<br><span class="opt">(A) 回答太慢　(B) 知識過時、會亂答　(C) 字太多</span></li>
+      <li>RAG 的順序是？<br><span class="opt">(A) 找資料 → 放進 prompt → 回答　(B) 回答 → 找資料　(C) 重新訓練模型</span></li>
+      <li>用了 RAG，AI 就不會幻覺了嗎？<br><span class="opt">(A) 對　(B) 不對，只能降低</span></li>
+    </ol>
+    <p class="note">答案：B、A、B。一句話總結：<strong>RAG 讓 AI 先查資料再回答，但看到答案還是要查來源。</strong></p>
+  </div>
+  <div class="foot"><span>Wiki：RAG · 運作流程 · RAG 的限制</span><span>15 / 15</span></div>
+</section>
+
+</div></div>
+<div class="ctrl"><a href="../index.html" style="color:#d6d3cc;margin-right:8px">回首頁</a><button id="prev" type="button">上一頁</button><span id="count"></span><button id="next" type="button">下一頁</button></div>
+<script>
+(function () {
+  var deck = document.getElementById("deck");
+  var slides = [].slice.call(document.querySelectorAll("section.slide"));
+  var cur = 0;
+  function fit() {
+    if (innerWidth <= 760) { deck.style.transform = ""; return; }
+    var s = Math.min(innerWidth / 1280, (innerHeight - 56) / 720);
+    deck.style.transform = "scale(" + s + ")";
+  }
+  function go(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle("active", k === cur); });
+    document.getElementById("count").textContent = (cur + 1) + " / " + slides.length;
+    document.getElementById("progress").style.width = ((cur + 1) / slides.length * 100) + "%";
+    if (location.hash !== "#" + (cur + 1)) history.replaceState(null, "", "#" + (cur + 1));
+  }
+  window.deck = { go: go };
+  document.getElementById("prev").onclick = function () { go(cur - 1); };
+  document.getElementById("next").onclick = function () { go(cur + 1); };
+  addEventListener("keydown", function (e) {
+    if (["ArrowRight", "PageDown", " "].indexOf(e.key) > -1) { e.preventDefault(); go(cur + 1); }
+    if (["ArrowLeft", "PageUp"].indexOf(e.key) > -1) { e.preventDefault(); go(cur - 1); }
+    if (e.key === "Home") go(0);
+    if (e.key === "End") go(slides.length - 1);
+  });
+  addEventListener("resize", fit);
+  fit();
+  go((parseInt(location.hash.slice(1), 10) || 1) - 1);
+})();
+</script>
+</body>
+</html>

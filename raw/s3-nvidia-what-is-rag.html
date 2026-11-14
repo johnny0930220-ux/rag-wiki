@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is Retrieval-Augmented Generation, aka RAG?</title><meta name="description" content="What Is Retrieval-Augmented Generation, aka RAG?">
+<style>
+:root{--bg:#fbfaf7;--paper:#fff;--ink:#22252a;--muted:#61656d;--line:#e2ded5;--accent:#0f6e6a;--soft:#e2f0ee;--warm:#c2410c;--warm-soft:#fbe7da;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--paper:#1c1f23;--ink:#e7e5e0;--muted:#a2a5ab;--line:#2d3137;--accent:#5ec4bc;--soft:#1d3533;--warm:#f0a35b;--warm-soft:#3a2a1d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--paper:#1c1f23;--ink:#e7e5e0;--muted:#a2a5ab;--line:#2d3137;--accent:#5ec4bc;--soft:#1d3533;--warm:#f0a35b;--warm-soft:#3a2a1d;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.8 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+a{color:var(--accent);text-underline-offset:3px}
+header.top{border-bottom:1px solid var(--line);background:var(--paper)}
+.bar{max-width:880px;margin:0 auto;padding:12px 16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.bar .brand{font-weight:700;color:var(--ink);text-decoration:none;margin-right:auto}
+.bar a{text-decoration:none}
+main{max-width:880px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:32px;line-height:1.3;margin:4px 0 10px}h2{font-size:23px;margin:36px 0 10px}h3{font-size:19px;margin:24px 0 6px}
+.eyebrow{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:.06em;margin:0}
+.summary{color:var(--muted);font-size:18px;margin:0 0 12px}
+.meta{font-size:14px;color:var(--muted);border-left:3px solid var(--line);padding-left:12px;margin:12px 0 24px}
+code{font-family:Consolas,monospace;background:var(--soft);padding:1px 5px;border-radius:5px;font-size:.9em}
+pre{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;line-height:1.6}pre code{background:none;padding:0}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}blockquote p{margin:0}
+.cards{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{display:block;height:100%;padding:16px 18px;background:var(--paper);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;line-height:1.6}
+.card:hover{border-color:var(--accent)}.card strong{display:block;font-size:18px;margin-bottom:4px}.card span{color:var(--muted);font-size:15px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 4px;padding:0;list-style:none}
+.flow li{margin:0;padding:6px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:14px}
+.flow li.c{background:var(--soft);border-color:var(--accent);color:var(--accent)}.flow li.r{background:var(--warm-soft);border-color:var(--warm);color:var(--warm)}
+.flow .to{border:0;background:none;padding:0;color:var(--muted)}
+.run{list-style:none;padding:0;margin:0;border-left:2px solid var(--line)}
+.run>li{position:relative;padding:8px 0 12px 22px;margin:0}
+.run>li::before{content:"";position:absolute;left:-7px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.run>li.fail::before{background:var(--warm)}.run>li.gen::before{background:var(--line)}
+.run .t{font-size:13px;color:var(--muted);font-family:Consolas,monospace}.run .n{font-weight:700}
+.run .ok{color:var(--accent);font-weight:700}.run .bad{color:var(--warm);font-weight:700}
+.run ul{margin:4px 0 0;padding-left:18px;font-size:15px}.run .d{font-size:15px;color:var(--muted)}
+.stat{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 20px}.stat span{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:15px}
+.stat b{font-size:20px;margin-right:4px}
+footer{max-width:880px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:var(--muted)}
+@media (max-width:600px){body{font-size:16px}h1{font-size:26px}}
+</style></head><body>
+<header class="top"><div class="bar"><a class="brand" href="../index.html">RAG Wiki</a><a href="../wiki/index.html">Wiki</a><a href="../slides/index.html">教學簡報</a><a href="../runs.html">流程與檢查紀錄</a></div></header>
+<main><p class="eyebrow">raw 擷取筆記</p><h1>What Is Retrieval-Augmented Generation, aka RAG?</h1><p class="meta">Rick Merritt（NVIDIA Blog）｜2023-11-15 初版；2025-01-31 更新｜<a href="https://blogs.nvidia.com/blog/what-is-retrieval-augmented-generation/" target="_blank" rel="noopener">https://blogs.nvidia.com/blog/what-is-retrieval-augmented-generation/</a><br>擷取日期：2026-11-14</p><p># 擷取筆記：NVIDIA〈What Is Retrieval-Augmented Generation〉</p>
+<blockquote class="callout"><p>本檔是讀原文後整理的擷取筆記，不是全文轉貼。</p></blockquote>
+<h2 id="法院書記官的比喻">法院書記官的比喻</h2>
+<ul><li>法官靠一般法律知識判案；遇到特殊案件，會請書記官去法律圖書館找判例。</li><li>LLM 能回答各種問題，但要給出有根據的權威答案，就得把特定資料提供給模型。</li><li>文章稱 RAG 是「AI 的法院書記官」（原文："The court clerk of AI"）。</li></ul>
+<h2 id="名稱由來">名稱由來</h2>
+<ul><li>2020 年提出這個名詞的論文，第一作者是 Patrick Lewis。</li><li>Lewis 曾為這個縮寫道歉，說如果早知道會這麼普及，會取個更好的名字。</li><li>論文把 RAG 描述成「通用的微調方法」，幾乎任何 LLM 都能用它連接外部資源。</li><li>研究在 Meta AI 位於倫敦的實驗室完成，共同作者來自 Meta AI、倫敦大學學院（UCL）和紐約大學。Lewis 後來在 Cohere 帶領 RAG 團隊。</li></ul>
+<h2 id="rag-怎麼運作">RAG 怎麼運作</h2>
+<ol><li>使用者的問題送進 embedding 模型，轉成數字形式，稱為 embedding 或向量。</li><li>把這個向量和知識庫索引裡的向量比對。</li><li>找到相符的資料後取出來，轉回人看得懂的文字，交給 LLM。</li><li>LLM 結合取回的文字和自己的回答，產生最後答案，並可以附上來源。</li></ol>
+<p>背景中，embedding 模型會隨著知識庫變動，持續建立和更新向量資料庫。開源函式庫 LangChain 常被用來把 LLM、embedding 模型和知識庫串起來。</p>
+<h2 id="好處">好處</h2>
+<ul><li><strong>可以附引用</strong>：像論文的註腳一樣，使用者能自己查證，建立信任。</li><li><strong>釐清模糊問題</strong>：可以幫模型釐清不清楚的提問。</li><li><strong>降低幻覺</strong>：減少模型給出「聽起來合理但錯誤」答案的機會。</li><li><strong>容易導入</strong>：最少大約五行程式碼就能實作，比用新資料重新訓練模型更快、更便宜，資料來源也能隨時更換。</li></ul>
+<h2 id="應用例子">應用例子</h2>
+<ul><li>連接醫療索引的模型可以協助醫師和護理師。</li><li>連接市場資料的助理可以協助金融分析師。</li><li>企業可以把技術手冊、政策手冊、影片或紀錄變成知識庫，用在客服、員工訓練和開發。</li><li>在個人電腦上，RAG 可以把本機模型接到自己的 email、筆記或文章，資料和對話都留在本機。</li></ul></main>
+<footer>RAG 主題的 LLM Wiki。raw/ 只放改寫後的擷取筆記，原文請見各來源網址。</footer>
+</body></html>

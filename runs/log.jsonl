@@ -1,0 +1,37 @@
+{"time": "2026-11-14 12:53:50", "node": "N1 取得資料", "ok": true, "errors": [], "stats": {"說明": "用 WebSearch/WebFetch 取得 5 篇網路來源，加上課程第 7 週投影片，共 6 篇，寫成 raw/s1～s6"}}
+{"time": "2026-11-14 12:53:50", "node": "N2 先討論", "ok": true, "errors": [], "stats": {"說明": "和使用者確認讀者（用過 ChatGPT 的一般人）、範圍三項（為什麼需要、怎麼運作、限制與替代）、長度 12～15 頁，寫進 discussion.md"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S1", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S2", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S3", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S4", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S5", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "N3 Ingest S6", "ok": true, "errors": [], "stats": {"說明": "寫來源頁、新增或更新概念頁，更新 index.md 和 log.md（細節見 wiki/log.md）"}}
+{"time": "2026-11-14 12:55:29", "node": "C1 檢查 wiki", "ok": true, "errors": [], "stats": {"來源": 6, "概念頁": 18, "檢查段落": 77, "比對數字": 33}}
+{"time": "2026-11-14 12:56:11", "node": "N4 整理大綱", "ok": true, "errors": [], "stats": {"說明": "只讀 wiki/index.md 和概念頁，寫出 15 頁的 slides/outline.md"}}
+{"time": "2026-11-14 12:56:11", "node": "C2 檢查大綱", "ok": false, "errors": ["第 1 頁用到「檢索」，但前面還沒在 新名詞: 解釋過", "第 3 頁用到「來源」，但前面還沒在 新名詞: 解釋過", "第 7 頁用到「擴增 prompt」，但前面還沒在 新名詞: 解釋過", "第 10 頁用到「關鍵字搜尋」，但前面還沒在 新名詞: 解釋過"], "stats": {"頁數": 15, "引用 wiki 頁": 15}}
+{"time": "2026-11-14 12:56:27", "node": "修正（C2 第 1 次失敗後）", "ok": true, "errors": [], "stats": {"說明": "工具：遮掉已解釋概念的別名再比對；N3：citations-trust 的別名「來源」太籠統，改成「附上來源」；N4：第 7 頁改成白話、第 10 頁拿掉「關鍵字搜尋」"}}
+{"time": "2026-11-14 12:56:27", "node": "C1 檢查 wiki", "ok": true, "errors": [], "stats": {"來源": 6, "概念頁": 18, "檢查段落": 77, "比對數字": 33}}
+{"time": "2026-11-14 12:56:27", "node": "C2 檢查大綱", "ok": false, "errors": ["第 11 頁用到「附上來源」，但前面還沒在 新名詞: 解釋過"], "stats": {"頁數": 15, "引用 wiki 頁": 15}}
+{"time": "2026-11-14 12:56:31", "node": "修正（C2 第 2 次失敗後）", "ok": true, "errors": [], "stats": {"說明": "第 11 頁第一次講到附上來源，補進 新名詞:"}}
+{"time": "2026-11-14 12:56:31", "node": "C2 檢查大綱", "ok": true, "errors": [], "stats": {"頁數": 15, "引用 wiki 頁": 15}}
+{"time": "2026-11-14 12:58:06", "node": "N5 產生簡報", "ok": true, "errors": [], "stats": {"說明": "依 outline.md 寫出 15 頁的 slides/index.html，每頁 section 標 data-wiki"}}
+{"time": "2026-11-14 12:58:09", "node": "C3 檢查簡報", "ok": false, "errors": ["第 1 頁的數字 15 不在它引用的 wiki 頁（rag）裡", "第 1 頁的數字 15\n 不在它引用的 wiki 頁（rag）裡", "第 2 頁的數字 15\n 不在它引用的 wiki 頁（llm）裡", "第 3 頁的數字 15\n 不在它引用的 wiki 頁（llm-limitations）裡", "第 4 頁的數字 15\n 不在它引用的 wiki 頁（hallucination、llm-limitations）裡", "第 5 頁的數字 15\n 不在它引用的 wiki 頁（rag、analogies）裡", "第 6 頁的數字 15\n 不在它引用的 wiki 頁（analogies）裡", "第 7 頁的數字 15\n 不在它引用的 wiki 頁（rag-workflow）裡", "第 8 頁的數字 15\n 不在它引用的 wiki 頁（chunking）裡", "第 9 頁的數字 15\n 不在它引用的 wiki 頁（embedding、vector-database）裡", "第 10 頁的數字 15\n 不在它引用的 wiki 頁（retrieval）裡", "第 11 頁的數字 11 不在它引用的 wiki 頁（augmented-prompt、citations-trust）裡", "第 11 頁的數字 15\n 不在它引用的 wiki 頁（augmented-prompt、citations-trust）裡", "第 12 頁的數字 12 不在它引用的 wiki 頁（rag-workflow、citations-trust）裡", "第 12 頁的數字 15\n 不在它引用的 wiki 頁（rag-workflow、citations-trust）裡", "第 13 頁的數字 13 不在它引用的 wiki 頁（rag-limitations、hallucination）裡", "第 13 頁的數字 15\n 不在它引用的 wiki 頁（rag-limitations、hallucination）裡", "第 14 頁的數字 14 不在它引用的 wiki 頁（long-context、llm-wiki）裡", "第 14 頁的數字 15\n 不在它引用的 wiki 頁（long-context、llm-wiki）裡", "第 15 頁的數字 15 不在它引用的 wiki 頁（rag、rag-workflow、rag-limitations）裡", "第 15 頁的數字 15\n 不在它引用的 wiki 頁（rag、rag-workflow、rag-limitations）裡"], "stats": {"頁數": 15, "比對數字": 27, "版面": "已檢查"}}
+{"time": "2026-11-14 12:58:21", "node": "修正（C3 第 1 次失敗後）", "ok": true, "errors": [], "stats": {"說明": "工具：數字比對的正規表示式誤把換行吃進去、頁尾頁碼不該算內容；N5：第 1 頁「15 分鐘入門」不是 wiki 裡的資訊，拿掉"}}
+{"time": "2026-11-14 12:58:21", "node": "C1 檢查 wiki", "ok": true, "errors": [], "stats": {"來源": 6, "概念頁": 18, "檢查段落": 77, "比對數字": 33}}
+{"time": "2026-11-14 12:58:21", "node": "C2 檢查大綱", "ok": true, "errors": [], "stats": {"頁數": 15, "引用 wiki 頁": 15}}
+{"time": "2026-11-14 12:58:23", "node": "C3 檢查簡報", "ok": true, "errors": [], "stats": {"頁數": 15, "比對數字": 6, "版面": "已檢查"}}
+{"time": "2026-11-14 12:59:04", "node": "R 人工對照審查（第 1 次）", "ok": true, "errors": [], "stats": {"說明": "逐頁對照簡報和 wiki，找到 3 個數字檢查抓不到的問題：第 14 頁 token 的解釋不在 wiki；第 10 頁「不會去搜整個網路」超出 wiki 的說法；第 12 頁把 AWS 和 IBM 兩個例子混在一起（附政策連結是 IBM 的例子）。另外發現下方按鈕蓋住頁尾。已修正"}}
+{"time": "2026-11-14 12:59:06", "node": "C3 檢查簡報", "ok": true, "errors": [], "stats": {"頁數": 15, "比對數字": 6, "版面": "已檢查"}}
+{"time": "2026-11-14 13:00:08", "node": "N4 整理大綱（第 2 版流程）", "ok": true, "errors": [], "stats": {"說明": "大綱改成每個重點句都標〔wiki 頁〕；C2 新增出處和數字檢查"}}
+{"time": "2026-11-14 13:00:08", "node": "C2 檢查大綱", "ok": false, "errors": ["第 10 頁用到「重新排序」，但前面還沒在 新名詞: 解釋過"], "stats": {"頁數": 15, "引用 wiki 頁": 15, "重點句": 39}}
+{"time": "2026-11-14 13:00:17", "node": "修正（C2 第 2 版第 1 次失敗後）", "ok": true, "errors": [], "stats": {"說明": "第 10 頁用了「重新排序」卻沒解釋（第 1 版的 C3 沒有檢查名詞，所以漏掉）。補進新名詞、加上 reranking 頁，簡報同步修改"}}
+{"time": "2026-11-14 13:00:17", "node": "C2 檢查大綱", "ok": true, "errors": [], "stats": {"頁數": 15, "引用 wiki 頁": 16, "重點句": 39}}
+{"time": "2026-11-14 13:00:19", "node": "C3 檢查簡報", "ok": true, "errors": [], "stats": {"頁數": 15, "比對數字": 6, "版面": "已檢查"}}
+{"time": "2026-11-14 13:00:29", "node": "C3 檢查簡報", "ok": true, "errors": [], "stats": {"頁數": 15, "比對數字": 6, "版面": "已檢查"}}
+{"time": "2026-11-14 13:00:29", "node": "R 人工對照審查（第 2 次）", "ok": true, "errors": [], "stats": {"說明": "重新對照第 1 次審查後改過的第 10、12、14 頁和頁尾，沒有發現新問題"}}
+{"time": "2026-11-14 13:00:29", "node": "C1 檢查 wiki", "ok": true, "errors": [], "stats": {"來源": 6, "概念頁": 18, "檢查段落": 77, "比對數字": 33}}
+{"time": "2026-11-14 13:01:49", "node": "完整重跑（第 2 版流程）", "ok": true, "errors": [], "stats": {"說明": "從 C1 開始依第 2 版流程重新跑一次所有檢查"}}
+{"time": "2026-11-14 13:01:49", "node": "C1 檢查 wiki", "ok": true, "errors": [], "stats": {"來源": 6, "概念頁": 18, "檢查段落": 77, "比對數字": 33}}
+{"time": "2026-11-14 13:01:49", "node": "C2 檢查大綱", "ok": true, "errors": [], "stats": {"頁數": 15, "引用 wiki 頁": 16, "重點句": 39}}
+{"time": "2026-11-14 13:01:51", "node": "C3 檢查簡報", "ok": true, "errors": [], "stats": {"頁數": 15, "比對數字": 6, "版面": "已檢查"}}
+{"time": "2026-11-14 13:01:51", "node": "N6 發布", "ok": true, "errors": [], "stats": {"說明": "產生首頁、wiki 和 raw 的瀏覽網頁、流程紀錄頁"}}
